@@ -1223,3 +1223,17 @@ static bool trans_csrrci(DisasContext *ctx, arg_csrrci * a)
                              ctx->zero, ctx->zero, mask, ctx->zero);
     }
 }
+
+static bool trans_dma(DisasContext *ctx, arg_dma *a)
+{
+    TCGv addr_dst = get_gpr(ctx, a->rd, EXT_NONE);
+    TCGv addr_src = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv size = get_gpr(ctx, a->rs2, EXT_NONE);
+
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_dma(tcg_env, addr_dst, addr_src, size);
+
+    //返回true表示该指令已成功翻译
+    return true;
+}

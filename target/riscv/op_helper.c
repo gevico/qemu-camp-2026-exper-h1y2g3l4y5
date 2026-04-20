@@ -781,3 +781,22 @@ done:
 }
 
 #endif /* !CONFIG_USER_ONLY */
+
+
+void helper_custom_dma(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    //根据rs2得到矩阵规模
+    int n = (rs2 == 0) ? 8 : (rs2 == 1) ? 16 : (rs2 == 2) ? 32 : 0;
+    if (n == 0) return; //不支持
+
+    float temp;
+    //模拟DMA搬运过程
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            // 从源地址读取 (rs1 + i*n + j)
+            temp = cpu_ldl_data_ra(env, rs1 + (i * n + j) * sizeof(float), GETPC());
+            // 写入目标地址 (rd + j*n + i)
+            cpu_stl_data_ra(env, rd + (j * n + i) * sizeof(float), temp, GETPC());
+        }
+    }
+}
