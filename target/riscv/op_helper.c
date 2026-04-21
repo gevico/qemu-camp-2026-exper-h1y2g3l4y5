@@ -835,3 +835,31 @@ void helper_custom_sort(CPURISCVState *env, target_ulong rd, target_ulong rs1, t
 
     g_free(buf);
 }
+
+
+void helper_custom_crush(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    uint32_t n = (uint32_t)rs2;
+    if(n == 0) return;
+    
+    uint8_t *buf = g_new(uint8_t, n);
+    if(!buf) return;
+    for(int i=0;i<n;i++){
+        buf[i] = cpu_ldub_data_ra(env, rs1 + i, GETPC());
+    }
+    
+    uint32_t num = (n+1)/2;
+    
+    for(int i=0;i<num;i++){
+        buf[i] = buf[2*i] & 0x0f;
+        if ((2 * i + 1) < n) {             
+            buf[i] |= (buf[2*i+1] & 0x0f) << 4;    
+        }
+    }
+    
+    for(int i=0;i<num;i++){
+        cpu_stb_data_ra(env, rd + i, buf[i], GETPC());
+    }
+    
+    g_free(buf);
+}

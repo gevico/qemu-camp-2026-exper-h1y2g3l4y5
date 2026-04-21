@@ -1252,3 +1252,16 @@ static bool trans_sort(DisasContext *ctx, arg_dma *a)
     return true;
 }
 
+static bool trans_crush(DisasContext *ctx, arg_dma *a)
+{
+    TCGv addr_rd = get_gpr(ctx, a->rd, EXT_NONE);
+    TCGv addr_rs = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv size_n = get_gpr(ctx, a->rs2, EXT_NONE);
+
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_crush(tcg_env, addr_rd, addr_rs, size_n);
+
+    //返回true表示该指令已成功翻译
+    return true;
+}
