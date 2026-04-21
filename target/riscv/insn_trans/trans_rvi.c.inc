@@ -1312,3 +1312,48 @@ static bool trans_vrelu(DisasContext *ctx, arg_dma *a)
     //返回true表示该指令已成功翻译
     return true;
 }   
+
+static bool trans_vscale(DisasContext *ctx, arg_dma *a)
+{
+    TCGv addr_rs1 = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv num_rs2 = get_gpr(ctx, a->rs2, EXT_NONE);
+    TCGv addr_rd = get_gpr(ctx, a->rd, EXT_NONE);
+    
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_vscale(tcg_env, addr_rd, addr_rs1, num_rs2);
+
+    //返回true表示该指令已成功翻译
+    return true;
+}  
+
+static bool trans_vmax(DisasContext *ctx, arg_dma *a)
+{
+    TCGv addr_rs1 = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv num_rs2 = get_gpr(ctx, a->rs2, EXT_NONE);
+    
+    TCGv reg_rd = dest_gpr(ctx, a->rd);
+    
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_vmax(reg_rd, tcg_env, addr_rs1, num_rs2);
+
+    gen_set_gpr(ctx, a->rd, reg_rd);
+
+    //返回true表示该指令已成功翻译
+    return true;
+}   
+
+static bool trans_gemm(DisasContext *ctx, arg_dma *a)
+{
+    TCGv addr_rs1 = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv addr_rs2 = get_gpr(ctx, a->rs2, EXT_NONE);
+    TCGv addr_rd = get_gpr(ctx, a->rd, EXT_NONE);
+    
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_gemm(tcg_env, addr_rd, addr_rs1, addr_rs2);
+
+    //返回true表示该指令已成功翻译
+    return true;
+}   

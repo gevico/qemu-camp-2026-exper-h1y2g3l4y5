@@ -916,4 +916,54 @@ void helper_custom_vrelu(CPURISCVState *env, target_ulong rd, target_ulong rs1, 
 
 }
 
+void helper_custom_vscale(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    int32_t num = 0;
+    uintptr_t ra = GETPC();
+    
+    for(int i=0;i<16;i++){
+        num = cpu_ldl_data_ra(env, rs1+i*sizeof(int32_t), ra);
+        num = (int32_t)((int64_t)num*(int64_t)rs2);
+        cpu_stl_data_ra(env, rd+i*sizeof(int32_t), num, ra);
+    }
+
+}
+
+target_ulong helper_custom_vmax(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    int32_t res = 0;
+    uint32_t n = (uint32_t) rs2;
+    if(n==0) return 0;
+    uintptr_t ra = GETPC();
+    
+    res = cpu_ldl_data_ra(env, rs1, ra);
+    for(int i=1;i<n;i++){
+        int32_t num = cpu_ldl_data_ra(env, rs1+i*sizeof(int32_t), ra);
+        if(num > res)
+            res = num;
+    }
+    
+    return (target_ulong)res;
+}
+
+void helper_custom_gemm(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    uintptr_t ra = GETPC();
+    uint32_t i = 0;
+    uint32_t j = 0;
+    for(i=0;i<4;i++){
+        for(j=0;j<4;j++){
+            int64_t res = 0;
+            for(uint32_t k=0;k<4;k++){
+                int32_t num_A = cpu_ldl_data_ra(env, rs1+(4*i+k)*sizeof(int32_t), ra);
+                int32_t num_B = cpu_ldl_data_ra(env, rs2+(j+4*k)*sizeof(int32_t), ra);
+                res += (int64_t)num_A*(int64_t)num_B;
+            }
+            cpu_stl_data_ra(env, rd+(4*i+j)*sizeof(int32_t), (int32_t)res, ra);
+        }
+        
+    }
+    
+}
+
 
