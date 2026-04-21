@@ -800,3 +800,38 @@ void helper_custom_dma(CPURISCVState *env, target_ulong rd, target_ulong rs1, ta
         }
     }
 }
+
+void helper_custom_sort(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    //根据rs2得到数组总元素数量
+    uint32_t n = (uint32_t)rs2;
+    //根据rd得到参与排序的元素数量
+    uint32_t m = (uint32_t)rd;
+    if(m <= 1)
+        return;
+    if(m > n)
+        m = n;
+
+    uint32_t *buf = g_new(uint32_t, m);
+    if(!buf) return;
+    for (uint32_t i = 0; i < m; i++) {
+        buf[i] = cpu_ldl_data_ra(env, rs1 + i * sizeof(uint32_t), GETPC());
+    }
+
+    uint32_t temp;
+    for(int i=0;i<m-1;i++){
+        for(int j=0;j<m-i-1;j++){
+            temp = buf[j];
+            if(temp > buf[j+1]){
+                buf[j]=buf[j+1];
+                buf[j+1]=temp;
+            }   
+        }
+    }
+
+    for (uint32_t i = 0; i < m; i++) {
+        cpu_stl_data_ra(env, rs1 + i * sizeof(uint32_t), buf[i], GETPC());
+    }
+
+    g_free(buf);
+}

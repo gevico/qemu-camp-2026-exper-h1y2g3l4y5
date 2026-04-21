@@ -1237,3 +1237,18 @@ static bool trans_dma(DisasContext *ctx, arg_dma *a)
     //返回true表示该指令已成功翻译
     return true;
 }
+
+static bool trans_dma(DisasContext *ctx, arg_dma *a)
+{
+    TCGv size_m = get_gpr(ctx, a->rd, EXT_NONE);
+    TCGv addr = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv size_n = get_gpr(ctx, a->rs2, EXT_NONE);
+
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_sort(tcg_env, size_m, addr, size_n);
+
+    //返回true表示该指令已成功翻译
+    return true;
+}
+
