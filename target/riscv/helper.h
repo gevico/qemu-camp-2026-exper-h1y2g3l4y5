@@ -1294,6 +1294,7 @@ DEF_HELPER_4(custom_vrelu, void, env, tl, tl, tl)
 DEF_HELPER_4(custom_vscale, void, env, tl, tl, tl)
 DEF_HELPER_3(custom_vmax, tl, env, tl, tl)
 DEF_HELPER_4(custom_gemm, void, env, tl, tl, tl)
+DEF_HELPER_4(custom_vadd, void, env, tl, tl, tl)
 
 /* CFI (zicfiss) helpers */
 #ifndef CONFIG_USER_ONLY

@@ -966,4 +966,17 @@ void helper_custom_gemm(CPURISCVState *env, target_ulong rd, target_ulong rs1, t
     
 }
 
+void helper_custom_vadd(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    uintptr_t ra = GETPC();
+    uint32_t i = 0;
+    for(i=0;i<16;i++){
+        int32_t res = 0;
+        int32_t num_A = cpu_ldl_data_ra(env, rs1+i*sizeof(int32_t), ra);
+        int32_t num_B = cpu_ldl_data_ra(env, rs2+i*sizeof(int32_t), ra);
+        res += num_A+num_B;
+        cpu_stl_data_ra(env, rd+i*sizeof(int32_t), res, ra);
+    }
+}
+
 
