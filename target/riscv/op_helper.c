@@ -902,4 +902,18 @@ target_ulong helper_custom_vdot(CPURISCVState *env, target_ulong rs1, target_ulo
     return (target_ulong)res; 
 }
 
+void helper_custom_vrelu(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    uint32_t n = (uint32_t)rs2;
+    int32_t num = 0;
+    uintptr_t ra = GETPC();
+    
+    for(int i=0;i<n;i++){
+        num = cpu_ldl_data_ra(env, rs1+i*sizeof(int32_t), ra);
+        num = num > 0 ? num : 0;
+        cpu_stl_data_ra(env, rd+i*sizeof(int32_t), num, ra);
+    }
+
+}
+
 
