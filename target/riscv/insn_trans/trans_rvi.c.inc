@@ -1265,3 +1265,36 @@ static bool trans_crush(DisasContext *ctx, arg_dma *a)
     //返回true表示该指令已成功翻译
     return true;
 }
+
+static bool trans_expand(DisasContext *ctx, arg_dma *a)
+{
+    TCGv addr_rd = get_gpr(ctx, a->rd, EXT_NONE);
+    TCGv addr_rs = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv size_n = get_gpr(ctx, a->rs2, EXT_NONE);
+
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_expand(tcg_env, addr_rd, addr_rs, size_n);
+
+    //返回true表示该指令已成功翻译
+    return true;
+}
+
+static bool trans_vdot(DisasContext *ctx, arg_dma *a)
+{
+    TCGv addr_rs1 = get_gpr(ctx, a->rs1, EXT_NONE);
+    TCGv addr_rs2 = get_gpr(ctx, a->rs2, EXT_NONE);
+     /* 2. 获取一个用于存储结果的 TCGv 变量。
+     * 如果 a->rd 是 0，dest_gpr 可能会返回一个丢弃变量，或者 ctx->zero。
+     */
+    TCGv target_reg = dest_gpr(ctx, a->rd);
+
+    //调用定义的Helper函数
+    //tcg_env是当前CPU状态的指针
+    gen_helper_custom_vdot(target_reg, tcg_env, addr_rs1, addr_rs2);
+
+    // 4. 将结果写回通用寄存器文件。
+    gen_set_gpr(ctx, a->rd, target_reg);
+    //返回true表示该指令已成功翻译
+    return true;
+}

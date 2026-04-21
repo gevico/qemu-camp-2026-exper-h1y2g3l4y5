@@ -863,3 +863,43 @@ void helper_custom_crush(CPURISCVState *env, target_ulong rd, target_ulong rs1, 
     
     g_free(buf);
 }
+
+void helper_custom_expand(CPURISCVState *env, target_ulong rd, target_ulong rs1, target_ulong rs2)
+{
+    uint32_t n = (uint32_t)rs2;
+    if(n == 0) return;
+    
+    uint8_t *buf = g_new(uint8_t, n*2);
+    if(!buf) return;
+    for(int i=0;i<n;i++){
+        buf[i] = cpu_ldub_data_ra(env, rs1 + i, GETPC());
+    }
+    
+    for(int i=n-1;i>=0;i--){
+        buf[2*i+1] = (buf[i] >> 4) &0x0f;
+        buf[2*i] = buf[i] & 0x0f;
+    }
+    
+    for(int i=0;i<2*n;i++){
+        cpu_stb_data_ra(env, rd + i, buf[i], GETPC());
+    }
+    
+    g_free(buf);
+}
+
+
+target_ulong helper_custom_vdot(CPURISCVState *env, target_ulong rs1, target_ulong rs2)
+{
+    uint64_t res = 0;
+    uintptr_t ra = GETPC();
+    
+    for (int i = 0; i < 16; i++) {
+        uint32_t val1 = cpu_ldl_data_ra(env, rs1 + i * sizeof(uint32_t), ra);
+        uint32_t val2 = cpu_ldl_data_ra(env, rs2 + i * sizeof(uint32_t), ra);
+        res += (uint64_t)val1 * (uint64_t)val2;
+    }
+    
+    return (target_ulong)res; 
+}
+
+
